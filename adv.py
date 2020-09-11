@@ -38,37 +38,73 @@ world.print_rooms()
 
 player = Player(world.starting_room)
 
-def path_finder(player, world):
-    # first we have to start at a certain room which will be room 0
-    player.current_room = world.starting_room
-    # then we instantiate a visited rooms set
+def path_finder(player):
+    steps = [] #traversal path
     visited = set()
-    # then we instantiate a stack
-    to_visit = Stack()
-    # add the first room to the stack
-    to_visit.push(player.current_room.id)
-    # create a steps list
-    steps = []
-    # start traversing thru the graph
-    while to_visit.size() > 0:
-        # take the top of the stack
-        v = to_visit.pop()
-        # if the v is not visited yet, add it
-        if v not in visited:
-            visited.add(v)
-        # for each valid move in the current room
-        for move in player.current_room.get_exits():
-            player.travel(move)
-            to_visit.push(player.current_room.id)
-            steps.append(move)
-    return steps        
 
+    stack_traversal = Stack()
+
+    current_room = world.rooms[0]
+
+    while len(visited) < len(world.rooms):
+        visited.add(current_room)
+
+        remaining_choices = []
+
+        if current_room.n_to is not None and current_room.n_to not in visited:
+            remaining_choices.append('n')
+
+        if current_room.s_to is not None and current_room.s_to not in visited:
+            remaining_choices.append('s')
+
+        if current_room.e_to is not None and current_room.e_to not in visited:
+            remaining_choices.append('e')
+
+        if current_room.w_to is not None and current_room.w_to not in visited:
+            remaining_choices.append('w')
+
+
+        if len(remaining_choices) == 0:
+            last_move = stack_traversal.pop()
+            if last_move == 'n':
+                current_room = current_room.s_to
+                steps.append('s')
+            if last_move == 's':
+                current_room = current_room.n_to
+                steps.append('n')
+            if last_move == 'e':
+                current_room = current_room.w_to
+                steps.append('w')
+            if last_move == 'w':
+                current_room = current_room.e_to
+                steps.append('e')
+       
+        if len(remaining_choices) > 0:
+            choice = random.choice(remaining_choices)
+            steps.append(choice)
+            stack_traversal.push(choice)
+            if choice == 'n':
+                current_room = current_room.n_to
+            
+            if choice == 's':
+                current_room = current_room.s_to
+
+            if choice == 'w':
+                current_room = current_room.w_to
+            
+            if choice == 'e':
+                current_room = current_room.e_to
+    return steps                      
+
+
+            
 
 
 
 # Fill this out with directions to walk
 # traversal_path = ['n', 'n']
-traversal_path = path_finder(player,world)
+# random.seed(28187)
+traversal_path = path_finder(player)
 
 
 
